@@ -1,17 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
-if [[ $# -lt 3 || $# -gt 4 || "$1" = "--help" ]]; then
-	echo "usage: $0 DOCKER_REGISTRY VERSION REGISTRY_HOSTNAME [KUBECTL_CONTEXT]"
+if [[ $# -lt 1 || $# -gt 2 || "$1" = "--help" ]]; then
+	echo "usage: $0 REGISTRY_HOSTNAME [KUBECTL_CONTEXT]"
 	exit 1
 fi
 
-image_registry="$1"
-blimp_version="$2"
-registry_hostname="$3"
+image_registry="gcr.io/kelda-blimp"
+blimp_version="0.13.22"
+registry_hostname="$1"
 kubectl_context=""
-if [[ $# -eq 4 ]]; then
-	kubectl_context="$4"
+if [[ $# -eq 2 ]]; then
+	kubectl_context="$2"
 fi
 
 function _kubectl() {
