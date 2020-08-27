@@ -1,0 +1,12 @@
+# Values adapted from https://docs.cilium.io/en/v1.8/gettingstarted/k8s-install-eks/#deploy-cilium.
+global:
+  # Use Cilium's overlay routing rather than using AWS ENIs to allocate pod IPs.
+  # AWS caps the the number of IPs that can be assigned to one node, which
+  # limits the number of pods we can deploy. For t2.medium's, the limit is 17
+  # IPs, which is way too low.
+  eni: false
+
+  egressMasqueradeInterfaces: eth0
+
+  nodeinit:
+    enabled: true

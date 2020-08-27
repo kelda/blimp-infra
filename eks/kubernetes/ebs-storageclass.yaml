@@ -1,0 +1,22 @@
+# By default, EKS ships with a default StorageClass called "gp2" (after the name
+# of the type of EBS volumes it creates). The default SC does not work for us
+# because it uses volumeBindingMode: WaitForFirstConsumer, which breaks our
+# PV/PVC allocation strategy. We use this SC instead.
+# These are the differences between this SC and the default gp2 SC:
+# - gp2 sets the parameters fsType: ext4 and type: gp2. Since these are both the
+#   default, we don't set them.
+# - gp2 uses volumeBindingMode: WaitForFirstConsumer, we use Immediate.
+# - gp2 uses reclaimPolicy: Delete, we use Retain. This doesn't matter much
+#   since we manually set the reclaimPolicy on all the PVs we create, but it
+#   could be helpful in case that somehow fails.
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: ebs-sc
+  annotations:
+    # Note: We must remove this annotation from the gp2 StorageClass as well.
+    # It is patched out by update-kube.sh.
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/aws-ebs
+volumeBindingMode: Immediate
+reclaimPolicy: Retain
