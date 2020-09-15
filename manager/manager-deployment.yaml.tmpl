@@ -32,6 +32,8 @@ spec:
           value: "500"
         - name: USE_NODE_PORT_FOR_NODE_CONTROLLER
           value: "<USE_NODE_PORT>"
+        - name: ISOLATE_BUILDKIT
+          value: "false"
         volumeMounts:
         - name: certs
           mountPath: "/etc/blimp"
