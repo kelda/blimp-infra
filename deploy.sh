@@ -51,7 +51,7 @@ else
 	exit 1
 fi
 
-template manager/manager-deployment.yaml "s|<CLUSTER_MANAGER_IMAGE>|${image_registry}/blimp-cluster-controller:${blimp_version}|;s|<DOCKER_REPO>|${image_registry}|;s|<REGISTRY_HOSTNAME>|${registry_hostname}|"
+template manager/manager-deployment.yaml "s|<CLUSTER_MANAGER_IMAGE>|${image_registry}/blimp-cluster-controller:${blimp_version}|;s|<DOCKER_REPO>|${image_registry}|;s|<REGISTRY_HOSTNAME>|${registry_hostname}|;s|<USE_NODE_PORT>|${USE_NODE_PORT:-false}|"
 _kubectl apply -f manager/
 
 ## Registry

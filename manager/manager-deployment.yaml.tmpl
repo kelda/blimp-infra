@@ -30,6 +30,8 @@ spec:
         # You can change this value based on the size of your cluster.
         - name: MAX_SANDBOXES
           value: "500"
+        - name: USE_NODE_PORT_FOR_NODE_CONTROLLER
+          value: "<USE_NODE_PORT>"
         volumeMounts:
         - name: certs
           mountPath: "/etc/blimp"
