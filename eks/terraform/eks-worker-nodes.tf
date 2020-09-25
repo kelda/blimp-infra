@@ -46,7 +46,7 @@ resource "aws_iam_instance_profile" "blimp-node" {
 
 resource "aws_key_pair" "blimp-node" {
   key_name   = "blimp-node"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZEqFYjJeQj+oBPP6HXHFkS0jr02H3lXUhaWq9zZ4z55oOrVBjTduzlleaxFKptjU7qxT6fno+a1JVZlCjnWJREpiVSKZe5bgQAMUChpfLX2luV/mDy7OeSzQIRhAmDFxvBFlKtI0hWqkGq81KQOMN6lQj8fJQXBSGAV3sQBj6fukGWhHfiPc3lZCtVZxUx6wmDklnAWogfh5AGBA4Ltm8vrY3E5SPBCCIdAbJMgNPXQ6/AQqbndG4+TnKWUZbebtp5yiechnZ5yz92fk2Zz9GQzlTGyH1jqyRfGzQsv4SAsRicD2+rfoGNENh7WMFr+sptMQaUdil4Mw/DD76J+Xn"
+  public_key = file(var.public-key-path)
 }
 
 data "aws_ami" "blimp-node-image" {
