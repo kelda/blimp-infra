@@ -26,4 +26,4 @@ _kubectl patch storageclass gp2 -p '{
 }'
 
 # Add our new default storageclass.
-_kubectl apply -f ebs-storageclass.yaml
+_kubectl apply -f kubernetes/ebs-storageclass.yaml
