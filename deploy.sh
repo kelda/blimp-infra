@@ -51,7 +51,13 @@ else
 	exit 1
 fi
 
-template manager/manager-deployment.yaml "s|<CLUSTER_MANAGER_IMAGE>|${image_registry}/blimp-cluster-controller:${blimp_version}|;s|<DOCKER_REPO>|${image_registry}|;s|<REGISTRY_HOSTNAME>|${registry_hostname}|;s|<USE_NODE_PORT>|${USE_NODE_PORT:-false}|"
+manager_sed="s|<CLUSTER_MANAGER_IMAGE>|${image_registry}/blimp-cluster-controller:${blimp_version}|;s|<DOCKER_REPO>|${image_registry}|;s|<REGISTRY_HOSTNAME>|${registry_hostname}|;s|<USE_NODE_PORT>|${USE_NODE_PORT:-false}|"
+if _kubectl get secret -n manager license > /dev/null; then
+	echo "Using installed license."
+	template manager/manager-deployment-licensed.yaml "${manager_sed}"
+else
+	template manager/manager-deployment.yaml "${manager_sed}"
+fi
 _kubectl apply -f manager/
 
 ## Registry
