@@ -36,6 +36,11 @@ spec:
           value: "<USE_NODE_PORT>"
         - name: ISOLATE_BUILDKIT
           value: "false"
+        - name: BLIMP_CLUSTER_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cluster-auth
+              key: token
         volumeMounts:
         - name: certs
           mountPath: "/etc/blimp"

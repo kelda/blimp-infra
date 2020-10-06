@@ -39,15 +39,26 @@ trap cleanup_templates EXIT
 cd "$(dirname "$0")"
 
 ## Manager
+# Make sure the namespace exists.
+_kubectl apply -f manager/0_namespace.yaml
+
 if _kubectl get secret -n manager manager-certs > /dev/null; then
 	echo "Using manager certs already present in cluster."
-elif [[ -f certs/manager.crt.pem && -f certs/manager.key.pem ]]; then
-	# Make sure the namespace exists.
-	_kubectl apply -f manager/0_namespace.yaml
+elif [[ -f secrets/manager.crt.pem && -f secrets/manager.key.pem ]]; then
 	_kubectl create secret -n manager generic manager-certs \
-		--from-file=cert.pem=certs/manager.crt.pem,key.pem=certs/manager.key.pem
+			 --from-file=cert.pem=secrets/manager.crt.pem,key.pem=secrets/manager.key.pem
 else
-	echo "Manager certs not found. Please generate certs (./gen-certs.sh) and try again."
+	echo "Manager certs not found. Please generate secrets (./gen-secrets.sh) and try again."
+	exit 1
+fi
+
+if _kubectl get secret -n manager cluster-auth > /dev/null; then
+	echo "Using cluster auth token already present in cluster."
+elif [[ -f secrets/cluster-auth-token ]]; then
+	_kubectl create secret -n manager generic cluster-auth \
+			 --from-file=token=secrets/cluster-auth-token
+else
+	echo "Cluster auth token not found. Please generate secrets (./gen-secrets.sh) and try again."
 	exit 1
 fi
 
@@ -61,5 +72,9 @@ fi
 _kubectl apply -f manager/
 
 ## Registry
+if ! _kubectl get secret -n registry cluster-auth > /dev/null; then
+	_kubectl create secret -n registry generic cluster-auth \
+			 --from-file=token=secrets/cluster-auth-token
+fi
 template registry/registry-deployment.yaml "s|<REGISTRY_HOSTNAME>|${registry_hostname}|;s|<DOCKER_AUTH_IMAGE>|${image_registry}/blimp-docker-auth:${blimp_version}|"
 _kubectl apply -f registry/

@@ -82,6 +82,12 @@ spec:
           - --v=2
           - --alsologtostderr
           - /config/auth_config.yml
+        env:
+        - name: BLIMP_CLUSTER_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cluster-auth
+              key: token
         volumeMounts:
         - mountPath: /config
           readOnly: true
