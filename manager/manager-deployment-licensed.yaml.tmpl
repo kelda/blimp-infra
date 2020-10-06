@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manager
+  namespace: manager
+spec:
+  selector:
+    matchLabels:
+      service: manager
+  template:
+    metadata:
+      labels:
+        service: manager
+    spec:
+      containers:
+      - name: manager
+        image: "<CLUSTER_MANAGER_IMAGE>"
+        imagePullPolicy: Always
+        command:
+        - blimp-cluster-controller
+        - -tls-cert
+        - /etc/blimp/cert.pem
+        - -tls-key
+        - /etc/blimp/key.pem
+        - -license
+        - /etc/blimp-license/license
+        env:
+        - name: BLIMP_DOCKER_REPO
+          value: "<DOCKER_REPO>"
+        - name: BLIMP_REGISTRY_HOSTNAME
+          value: "<REGISTRY_HOSTNAME>"
+        # You can change this value based on the size of your cluster.
+        - name: MAX_SANDBOXES
+          value: "500"
+        - name: USE_NODE_PORT_FOR_NODE_CONTROLLER
+          value: "<USE_NODE_PORT>"
+        - name: ISOLATE_BUILDKIT
+          value: "false"
+        volumeMounts:
+        - name: certs
+          mountPath: "/etc/blimp"
+          readOnly: true
+        - name: license
+          mountPath: "/etc/blimp-license"
+          readOnly: true
+      volumes:
+      - name: certs
+        secret:
+          secretName: manager-certs
+      - name: license
+        secret:
+          secretName: license
+      serviceAccountName: manager-admin
