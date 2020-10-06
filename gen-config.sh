@@ -35,4 +35,8 @@ fi
 echo "manager_host: \"${manager_host}:443\"" >> "$output_file"
 echo "manager_cert: |" >> "$output_file"
 # Indent the cert contents 4 spaces.
-cat "$(dirname "$0")"/certs/manager.crt.pem | sed -e 's/^/    /' >> "$output_file"
+cat "$(dirname "$0")"/secrets/manager.crt.pem | sed -e 's/^/    /' >> "$output_file"
+echo -n "cluster_token: " >> "$output_file"
+cat "$(dirname "$0")"/secrets/cluster-auth-token >> "$output_file"
+# The token file probably does not end with a newline.
+echo >> "$output_file"

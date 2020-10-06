@@ -43,8 +43,18 @@ EOF
 	rm "${config}"
 }
 
+function gen_token () {
+	length="$1"
+
+	# Restrict the token the alphanumerical characters to avoid any encoding
+	# issues.
+	cat /dev/urandom | tr -dc a-zA-Z0-9 | head -c "${length}"
+}
+
 cd "$(dirname "$0")"
 
-mkdir -p certs
+mkdir -p secrets
 
-make_cert "Manager" certs/manager.crt.pem certs/manager.key.pem
+make_cert "Manager" secrets/manager.crt.pem secrets/manager.key.pem
+
+gen_token 32 > secrets/cluster-auth-token
