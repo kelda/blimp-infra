@@ -72,6 +72,8 @@ fi
 _kubectl apply -f manager/
 
 ## Registry
+# Make sure the registry exists.
+_kubectl apply -f registry/0_namespace.yaml
 if ! _kubectl get secret -n registry cluster-auth 2>/dev/null > /dev/null; then
 	_kubectl create secret -n registry generic cluster-auth \
 			 --from-file=token=secrets/cluster-auth-token
