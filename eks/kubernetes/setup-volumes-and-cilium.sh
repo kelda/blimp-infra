@@ -16,9 +16,7 @@ function _kubectl() {
     kubectl --context "$context" "$@"
 }
 
-cd "$(dirname "$0")"
-
-./setup-volumes.sh "$context"
+./kubernetes/setup-volumes.sh "$context"
 
 # Install CNI.
 # First, delete the default EKS VPC CNI
@@ -28,8 +26,8 @@ _kubectl -n kube-system delete --ignore-not-found=true daemonset aws-node
 cilium_helm_args=(
 	--kube-context "$context"
 	--namespace cni-cilium
-	--version 1.8.2
-	-f cilium-helm-values.yaml
+	--version 1.8.4
+	-f ./kubernetes/cilium-helm-values.yaml
 )
 # Don't run helm upgrade if there aren't changes.
 if ! helm diff upgrade cilium cilium/cilium \
