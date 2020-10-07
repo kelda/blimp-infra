@@ -5,6 +5,10 @@ This directory contains configuration for creating an EKS cluster using terrafor
 It creates a Kubernetes cluster managed by EKS using Cilium as the network
 overlay.
 
+Blimp doesn't depend directly on Cilium -- you're free to use any networking
+approach you prefer. This guide uses Cilium to get around AWS's limits
+on ENIs per machine, and to enforce network isolation between namespaces.
+
 _Note:_ The terraform state is stored locally. For non-demo usage, you should
 probably store the state in S3.
 
@@ -12,6 +16,7 @@ probably store the state in S3.
 
 * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 * [terraform](https://www.terraform.io/downloads.html)
+* [helm](https://helm.sh/docs/helm/helm_install/)
 
 ## Creating the cluster
 
@@ -28,14 +33,6 @@ probably store the state in S3.
    ip-10-0-0-198.us-west-2.compute.internal   NotReady   <none>   3s    v1.16.13-eks-2ba888
    ip-10-0-0-84.us-west-2.compute.internal    NotReady   <none>   4s    v1.16.13-eks-2ba888
    ```
-1. Setup volumes by running the following command.
-   ```
-   ./kubernetes/setup-volumes.sh
-   ```
-
-<!--
-TODO: Cilium isn't working reliably. It sometimes breaks networking on the node.
-TODO: Add [helm](https://helm.sh/docs/helm/helm_install/) as a dependency.
 1. Setup networking and volumes by running the following command.
    ```
    helm plugin install https://github.com/databus23/helm-diff
@@ -55,7 +52,6 @@ TODO: Add [helm](https://helm.sh/docs/helm/helm_install/) as a dependency.
    kube-system   kube-proxy-6mfqc                  1/1     Running   0          3m22s
    kube-system   kube-proxy-vqbxl                  1/1     Running   0          3m20s
    ```
--->
 
 ## Destroying the cluster
 
