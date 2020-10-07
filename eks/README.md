@@ -15,8 +15,6 @@ probably store the state in S3.
 
 ## Creating the cluster
 
-1. Edit line 49 of `terraform/eks-worker-nodes.tf` so that the public SSH key corresponds to
-   a private key you have access to.
 1. `cd` into the `terraform` directory and  run `terraform apply`. Note that
    this takes awhile (10-15 mins) to complete.
    1. Add the outputted kubeconfig to your local kubeconfig. If you don't have
