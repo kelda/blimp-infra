@@ -56,3 +56,7 @@ spec:
         secret:
           secretName: license
       serviceAccountName: manager-admin
+      tolerations:
+      - effect: NoSchedule
+        key: blimp.nodeDNSPending
+        operator: Exists

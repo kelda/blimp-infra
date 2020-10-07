@@ -48,3 +48,7 @@ spec:
         secret:
           secretName: manager-certs
       serviceAccountName: manager-admin
+      tolerations:
+      - effect: NoSchedule
+        key: blimp.nodeDNSPending
+        operator: Exists
