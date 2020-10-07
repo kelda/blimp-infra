@@ -48,7 +48,9 @@ function gen_token () {
 
 	# Restrict the token the alphanumerical characters to avoid any encoding
 	# issues.
-	cat /dev/urandom | tr -dc a-zA-Z0-9 | head -c "${length}"
+	# tr on Mac expects UTF-8 input by default so we have to set the locale:
+	# https://unix.stackexchange.com/questions/45404/why-cant-tr-read-from-dev-urandom-on-osx/217276
+	LC_ALL=C tr -dc a-zA-Z0-9 < /dev/urandom | head -c "${length}"
 }
 
 cd "$(dirname "$0")"
