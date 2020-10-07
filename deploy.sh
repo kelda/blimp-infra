@@ -42,7 +42,7 @@ cd "$(dirname "$0")"
 # Make sure the namespace exists.
 _kubectl apply -f manager/0_namespace.yaml
 
-if _kubectl get secret -n manager manager-certs > /dev/null; then
+if _kubectl get secret -n manager manager-certs 2>/dev/null > /dev/null; then
 	echo "Using manager certs already present in cluster."
 elif [[ -f secrets/manager.crt.pem && -f secrets/manager.key.pem ]]; then
 	_kubectl create secret -n manager generic manager-certs \
@@ -52,7 +52,7 @@ else
 	exit 1
 fi
 
-if _kubectl get secret -n manager cluster-auth > /dev/null; then
+if _kubectl get secret -n manager cluster-auth 2>/dev/null > /dev/null; then
 	echo "Using cluster auth token already present in cluster."
 elif [[ -f secrets/cluster-auth-token ]]; then
 	_kubectl create secret -n manager generic cluster-auth \
@@ -63,7 +63,7 @@ else
 fi
 
 manager_sed="s|<CLUSTER_MANAGER_IMAGE>|${image_registry}/blimp-cluster-controller:${blimp_version}|;s|<DOCKER_REPO>|${image_registry}|;s|<REGISTRY_HOSTNAME>|${registry_hostname}|;s|<USE_NODE_PORT>|${USE_NODE_PORT:-false}|"
-if _kubectl get secret -n manager license > /dev/null; then
+if _kubectl get secret -n manager license 2>/dev/null > /dev/null; then
 	echo "Using installed license."
 	template manager/manager-deployment-licensed.yaml "${manager_sed}"
 else
@@ -72,7 +72,7 @@ fi
 _kubectl apply -f manager/
 
 ## Registry
-if ! _kubectl get secret -n registry cluster-auth > /dev/null; then
+if ! _kubectl get secret -n registry cluster-auth 2>/dev/null > /dev/null; then
 	_kubectl create secret -n registry generic cluster-auth \
 			 --from-file=token=secrets/cluster-auth-token
 fi
