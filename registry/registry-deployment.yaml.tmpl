@@ -43,7 +43,7 @@ spec:
       # A nginx reverse proxy that gets a SSL certificate from LetsEncrypt, and
       # forwards traffic to the registry and authentication server.
       - name: letsencrypt
-        image: linuxserver/letsencrypt
+        image: linuxserver/swag
         env:
           - name: URL
             value: "<REGISTRY_HOSTNAME>"
