@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: link-proxy
+  namespace: link-proxy
+spec:
+  selector:
+    matchLabels:
+      service: link-proxy
+  template:
+    metadata:
+      labels:
+        service: link-proxy
+    spec:
+      containers:
+      # Gets an SSL certificate from LetsEncrypt, which is used in from the
+      # link-proxy container.
+      - name: letsencrypt
+        image: linuxserver/swag
+        # https://github.com/linuxserver/docker-swag/blob/master/README.md#parameters
+        env:
+        - name: URL
+          value: <YOUR_LINK_PROXY_BASE_HOSTNAME>
+        - name: SUBDOMAINS
+          value: wildcard
+        - name: ONLY_SUBDOMAINS
+          value: "true"
+        - name: VALIDATION
+          value: dns
+        - name: DNSPLUGIN
+          # See the link above for a list of supported DNS plugins.
+          value: <YOUR_DNS_PROVIDER>
+        volumeMounts:
+        - mountPath: /config
+          name: lets-encrypt-state
+        - mountPath: /config/dns-conf
+          name: dns-conf
+        - mountPath: /config/nginx/site-confs
+          name: nginx-conf
+
+      - name: link-proxy
+        # BLIMP_BACKEND_VERSION should match the version defined in deploy.sh.
+        image: gcr.io/kelda-blimp/link-proxy:<BLIMP_BACKEND_VERSION>
+        env:
+        - name: BLIMP_LINK_PROXY_BASE_HOSTNAME
+          # The base hostname for exposed URLs (e.g. "blimp.dev").
+          value: <YOUR_LINK_PROXY_BASE_HOSTNAME>
+
+      volumes:
+      - name: lets-encrypt-state
+        persistentVolumeClaim:
+          claimName: lets-encrypt-pvc
+      - name: dns-conf
+        secret:
+          # You need to create a Secret according to the instructions for your
+          # provider at
+          # https://github.com/linuxserver/docker-swag/tree/master/root/defaults/dns-conf
+          secretName: <YOUR_DNS_SECRET>
+          defaultMode: 0400
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+      serviceAccountName: link-proxy-access
+
+  strategy:
+    type: Recreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lets-encrypt-pvc
+  namespace: link-proxy
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: link-proxy
+  name: nginx-conf
+data:
+  default: |
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
+
+    server {
+      listen 443 ssl;
+
+      # SSL
+      include /config/nginx/ssl.conf;
+
+      # Forward requests to the actual link-proxy.
+      location / {
+        proxy_pass                          http://localhost:8000;
+        proxy_set_header  Host              $http_host;
+        proxy_set_header  X-Real-IP         $remote_addr;
+        proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header  X-Forwarded-Proto $scheme;
+        proxy_read_timeout                  900;
+
+        # Pass through the headers use by WebSocket to upgrade connections.
+        # This will not affect requests that do not use WebSockets.
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+      }
+    }
+
+    # Redirect any stray HTTP requests to HTTPS. This helps when apps mistakenly
+    # send you back to HTTP for some reason.
+    server {
+      listen 80;
+      return 301 https://$host$request_uri;
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: link-proxy
+  namespace: link-proxy
+spec:
+  type: LoadBalancer
+  selector:
+    service: link-proxy
+  ports:
+  - name: https
+    port: 443
+    targetPort: 443
+  - name: http
+    port: 80
+    targetPort: 80
