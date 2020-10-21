@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: link-proxy
+  namespace: link-proxy
+spec:
+  selector:
+    matchLabels:
+      service: link-proxy
+  template:
+    metadata:
+      labels:
+        service: link-proxy
+    spec:
+      containers:
+      - name: link-proxy
+        # BLIMP_BACKEND_VERSION should match the version defined in deploy.sh.
+        image: gcr.io/kelda-blimp/link-proxy:<BLIMP_BACKEND_VERSION>
+        env:
+        - name: BLIMP_LINK_PROXY_BASE_HOSTNAME
+          # The base hostname for exposed URLs (e.g. "blimp.dev").
+          value: <YOUR_LINK_PROXY_BASE_HOSTNAME>
+
+      serviceAccountName: link-proxy-access
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: link-proxy
+  namespace: link-proxy
+spec:
+  type: LoadBalancer
+  selector:
+    service: link-proxy
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000

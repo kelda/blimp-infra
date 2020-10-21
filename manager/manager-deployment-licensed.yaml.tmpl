@@ -36,6 +36,8 @@ spec:
           value: "<USE_NODE_PORT>"
         - name: ISOLATE_BUILDKIT
           value: "false"
+        - name: BLIMP_LINK_PROXY_BASE_HOSTNAME
+          value: "<LINK_PROXY_BASE_HOSTNAME>"
         - name: BLIMP_CLUSTER_SECRET
           valueFrom:
             secretKeyRef:
