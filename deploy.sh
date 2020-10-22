@@ -7,7 +7,7 @@ if [[ $# -lt 1 || $# -gt 2 || "$1" = "--help" ]]; then
 fi
 
 image_registry="gcr.io/kelda-blimp"
-blimp_version="0.13.37"
+blimp_version="0.13.39"
 registry_hostname="$1"
 kubectl_context=""
 if [[ $# -eq 2 ]]; then
