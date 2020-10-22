@@ -27,4 +27,4 @@ _kubectl apply -f manager/0_namespace.yaml
 # will replace it will the new one cleanly.
 _kubectl create secret -n manager generic license \
 		 --from-file=license="${license_path}" \
-		 --dry-run=client -o yaml | kubectl apply -f -
+		 --dry-run=client -o yaml | _kubectl apply -f -
