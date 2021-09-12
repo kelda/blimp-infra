@@ -6,8 +6,8 @@ if [[ $# -lt 1 || $# -gt 2 || "$1" = "--help" ]]; then
 	exit 1
 fi
 
-image_registry="gcr.io/kelda-blimp"
-blimp_version="0.14.2"
+image_registry="keldaio"
+blimp_version="0.15.1"
 registry_hostname="$1"
 kubectl_context=""
 if [[ $# -eq 2 ]]; then
